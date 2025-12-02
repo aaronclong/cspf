@@ -1,36 +1,60 @@
 {
-  "name": "jspf",
-  "version": "0.0.2",
-  "description": "JSON XSPF Node module. See http://www.xspf.org/jspf/ for more details.",
+  "name": "cspf",
+  "version": "0.0.1",
+  "description": "CBOR XSPF JavaScript module. This is an unofficial fork of XSPF that implements CBOR & DAR-CBOR compliant version",
   "keywords": [
     "xspf",
     "jspf",
+    "cspf",
     "playlist"
   ],
-  "homepage": "https://github.com/kobe1980/jspf",
+  "homepage": "https://github.com/aaronclong/cspf",
   "bugs": {
-    "url": "https://github.com/kobe1980/jspf/issues"
+    "url": "https://github.com/aaronclong/cspf/issues"
   },
-  "author": {
-    "name": "kobe1980",
-    "email": "kobe1980@gmail.com"
-  },
+  "author": "Aaron Long",
   "engines": {
-    "node": ">=0.4.0"
+    "node": ">=24.11.1"
   },
   "dependencies": {
-	"should": ">=5.2.0",
-	"Mocha": ">=2.2.1"
+    "@ipld/dag-cbor": "^9.2.5"
   },
-  "devDependencies": {
+  "main": "dist/cspf.node.cjs",
+  "module": "dist/cspf.browser.js",
+  "types": "dist/types/index.d.ts",
+  "browser": "dist/cspf.browser.js",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/cspf.browser.js",
+      "require": "./dist/cspf.node.cjs"
+    }
   },
-  "main": "index.js",
+  "scripts": {
+    "clean": "rimraf dist",
+    "build": "pnpm run clean && rollup -c",
+    "build:watch": "pnpm run clean && rollup -c --watch",
+    "build:node": "pnpm run clean && rollup -c --configPlugin node",
+    "build:browser": "pnpm run clean && rollup -c --configPlugin browser",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
   "repository": {
     "type": "git",
-    "url": "git://github.com/kobe1980/jspf.git"
+    "url": "https://github.com/aaronclong/cspf.git"
   },
-  "_npmUser": {
-    "name": "kobe1980",
-    "email": "kobe1980@gmail.com"
+  "volta": {
+    "node": "24.11.1",
+    "pnpm": "10.24.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^29.0.0",
+    "@rollup/plugin-node-resolve": "^16.0.3",
+    "@rollup/plugin-typescript": "^12.3.0",
+    "rimraf": "^6.1.2",
+    "rollup": "^4.53.3",
+    "tslib": "^2.8.1",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.15"
   }
 }
