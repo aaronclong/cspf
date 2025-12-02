@@ -31,7 +31,11 @@
     }
   },
   "scripts": {
-    "build": "rimraf dist && rollup -c"
+    "clean": "rimraf dist",
+    "build": "pnpm run clean && rollup -c",
+    "build:watch": "pnpm run clean && rollup -c --watch",
+    "build:node": "pnpm run clean && rollup -c --configPlugin node",
+    "build:browser": "pnpm run clean && rollup -c --configPlugin browser"
   },
   "repository": {
     "type": "git",
