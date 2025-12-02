@@ -35,7 +35,9 @@
     "build": "pnpm run clean && rollup -c",
     "build:watch": "pnpm run clean && rollup -c --watch",
     "build:node": "pnpm run clean && rollup -c --configPlugin node",
-    "build:browser": "pnpm run clean && rollup -c --configPlugin browser"
+    "build:browser": "pnpm run clean && rollup -c --configPlugin browser",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "repository": {
     "type": "git",
