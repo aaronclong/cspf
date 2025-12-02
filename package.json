@@ -19,11 +19,10 @@
     "node": ">=0.4.0"
   },
   "dependencies": {
-	"should": ">=5.2.0",
-	"Mocha": ">=2.2.1"
+    "should": ">=5.2.0",
+    "Mocha": ">=2.2.1"
   },
-  "devDependencies": {
-  },
+  "devDependencies": {},
   "main": "index.js",
   "repository": {
     "type": "git",
@@ -32,5 +31,9 @@
   "_npmUser": {
     "name": "kobe1980",
     "email": "kobe1980@gmail.com"
+  },
+  "volta": {
+    "node": "24.11.1",
+    "pnpm": "10.24.0"
   }
 }
