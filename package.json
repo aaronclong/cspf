@@ -12,10 +12,7 @@
   "bugs": {
     "url": "https://github.com/aaronclong/cspf/issues"
   },
-  "author": {
-    "name": "kobe1980",
-    "email": "kobe1980@gmail.com"
-  },
+  "author": "Aaron Long",
   "engines": {
     "node": ">=24.11.1"
   },
@@ -38,11 +35,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/aaronclong/cspf.git"
-  },
-  "_npmUser": {
-    "name": "kobe1980",
-    "email": "kobe1980@gmail.com"
+    "url": "https://github.com/aaronclong/cspf.git"
   },
   "volta": {
     "node": "24.11.1",
