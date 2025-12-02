@@ -22,7 +22,20 @@
   "dependencies": {
     "@ipld/dag-cbor": "^9.2.5"
   },
-  "main": "index.js",
+  "main": "dist/cspf.node.cjs",
+  "module": "dist/cspf.browser.js",
+  "types": "dist/types/index.d.ts",
+  "browser": "dist/cspf.browser.js",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/cspf.browser.js",
+      "require": "./dist/cspf.node.cjs"
+    }
+  },
+  "scripts": {
+    "build": "rimraf dist && rollup -c"
+  },
   "repository": {
     "type": "git",
     "url": "git://github.com/aaronclong/cspf.git"
@@ -36,6 +49,13 @@
     "pnpm": "10.24.0"
   },
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^29.0.0",
+    "@rollup/plugin-node-resolve": "^16.0.3",
+    "@rollup/plugin-typescript": "^12.3.0",
+    "rimraf": "^6.1.2",
+    "rollup": "^4.53.3",
+    "tslib": "^2.8.1",
+    "typescript": "^5.9.3",
     "vitest": "^4.0.15"
   }
 }
