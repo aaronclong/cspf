@@ -1,32 +1,31 @@
 {
-  "name": "jspf",
-  "version": "0.0.2",
-  "description": "JSON XSPF Node module. See http://www.xspf.org/jspf/ for more details.",
+  "name": "cspf",
+  "version": "0.0.1",
+  "description": "CBOR XSPF JavaScript module. This is an unofficial fork of XSPF that implements CBOR & DAR-CBOR compliant version",
   "keywords": [
     "xspf",
     "jspf",
+    "cspf",
     "playlist"
   ],
-  "homepage": "https://github.com/kobe1980/jspf",
+  "homepage": "https://github.com/aaronclong/cspf",
   "bugs": {
-    "url": "https://github.com/kobe1980/jspf/issues"
+    "url": "https://github.com/aaronclong/cspf/issues"
   },
   "author": {
     "name": "kobe1980",
     "email": "kobe1980@gmail.com"
   },
   "engines": {
-    "node": ">=0.4.0"
+    "node": ">=24.11.1"
   },
   "dependencies": {
-    "should": ">=5.2.0",
-    "Mocha": ">=2.2.1"
   },
   "devDependencies": {},
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "git://github.com/kobe1980/jspf.git"
+    "url": "git://github.com/aaronclong/cspf.git"
   },
   "_npmUser": {
     "name": "kobe1980",
