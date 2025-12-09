@@ -17,7 +17,8 @@
     "node": ">=24.11.1"
   },
   "dependencies": {
-    "@ipld/dag-cbor": "^9.2.5"
+    "@ipld/dag-cbor": "^9.2.5",
+    "multiformats": "^13.4.1"
   },
   "main": "dist/cspf.node.cjs",
   "module": "dist/cspf.browser.js",
