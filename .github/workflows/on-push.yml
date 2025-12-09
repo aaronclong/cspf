@@ -6,6 +6,8 @@ on:
 env:
     PNPM_VERSION: 10.24.0
     NODE_VERSION: 24.11.1
+    YQ_VERSION: v4.44.3
+    CBOR_VERSION: v0.5.0
 
 jobs:
   build:
@@ -21,10 +23,30 @@ jobs:
           version: ${{ env.PNPM_VERSION }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
+      
+      - name: Install cbor
+        uses: jaxxstorm/action-install-gh-release
+        with:
+          repo: ironspecs/cbor-cli
+          tag: ${{ env.CBOR_VERSION }}
+          cache: enable
+      
+      - name: Install yq
+        uses: jaxxstorm/action-install-gh-release
+        with:
+          repo: mikefarah/yq
+          tag: ${{ env.YQ_VERSION }}
+          cache: enable
+
+      - name: Add CLI tools to PATH
+        run: echo "$HOME/.local/cli-tools/bin" >> "$GITHUB_PATH"
+
+      - name: Install cbor CLI
+        run: sudo dpkg -i "$HOME/.cache/cli-tools/cbor-cli.deb"
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -34,4 +56,3 @@ jobs:
 
       - name: Test
         run: pnpm test
-
