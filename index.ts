@@ -1,3 +1,5 @@
+import { encode, decode } from "@ipld/dag-cbor";
+
 export type PlaylistRecord = Record<string, unknown>;
 
 export interface TrackShape {
@@ -33,15 +35,23 @@ export interface CspfShape {
   track: TrackShape[];
 }
 
-type OperationCallback = (isError: boolean, message: string, err?: Error) => void;
+type OperationCallback = (
+  isError: boolean,
+  message: string,
+  err?: Error
+) => void;
 type TrackInitializer = Partial<TrackShape>;
-type CspfInitializer = Partial<Omit<CspfShape, 'track'>> & { track?: Array<TrackShape | Track> };
+type CspfInitializer = Partial<Omit<CspfShape, "track">> & {
+  track?: Array<TrackShape | Track>;
+};
 
-const isString = (value: unknown): value is string => typeof value === 'string';
-const isNumber = (value: unknown): value is number => typeof value === 'number' && Number.isFinite(value);
+const isString = (value: unknown): value is string => typeof value === "string";
+const isNumber = (value: unknown): value is number =>
+  typeof value === "number" && Number.isFinite(value);
 const isPlainObject = (value: unknown): value is PlaylistRecord =>
-  typeof value === 'object' && value !== null && !Array.isArray(value);
-const isDate = (value: unknown): value is Date => value instanceof Date && !Number.isNaN(value.getTime());
+  typeof value === "object" && value !== null && !Array.isArray(value);
+const isDate = (value: unknown): value is Date =>
+  value instanceof Date && !Number.isNaN(value.getTime());
 
 type ByteSource = ArrayBuffer | ArrayBufferView;
 
@@ -61,8 +71,10 @@ const objectsEqual = (left: PlaylistRecord, right: PlaylistRecord): boolean => {
     return false;
   }
 
-  return leftKeys.every((key) =>
-    Object.prototype.hasOwnProperty.call(right, key) && valuesEqual(left[key], right[key])
+  return leftKeys.every(
+    (key) =>
+      Object.prototype.hasOwnProperty.call(right, key) &&
+      valuesEqual(left[key], right[key])
   );
 };
 
@@ -94,14 +106,14 @@ export class Track {
   extension: PlaylistRecord;
 
   constructor(init?: TrackInitializer) {
-    this.location = init?.location ?? '';
-    this.identifier = init?.identifier ?? '';
-    this.title = init?.title ?? '';
-    this.creator = init?.creator ?? '';
-    this.annotation = init?.annotation ?? '';
-    this.info = init?.info ?? '';
-    this.image = init?.image ?? '';
-    this.album = init?.album ?? '';
+    this.location = init?.location ?? "";
+    this.identifier = init?.identifier ?? "";
+    this.title = init?.title ?? "";
+    this.creator = init?.creator ?? "";
+    this.annotation = init?.annotation ?? "";
+    this.info = init?.info ?? "";
+    this.image = init?.image ?? "";
+    this.album = init?.album ?? "";
     this.trackNum = init?.trackNum ?? 0;
     this.duration = init?.duration ?? 0;
     this.link = init?.link ? [...init.link] : [];
@@ -297,7 +309,7 @@ export class Track {
     }
 
     if (!Track.isParsable(track)) {
-      throw new TypeError('Track payload is not parsable');
+      throw new TypeError("Track payload is not parsable");
     }
 
     return new Track(track);
@@ -321,21 +333,23 @@ export class Cspf {
   track: Track[];
 
   constructor(init?: CspfInitializer) {
-    this.title = init?.title ?? '';
-    this.creator = init?.creator ?? '';
-    this.annotation = init?.annotation ?? '';
-    this.info = init?.info ?? '';
-    this.location = init?.location ?? '';
-    this.identifier = init?.identifier ?? '';
-    this.image = init?.image ?? '';
-    this.date = init?.date ?? '';
-    this.license = init?.license ?? '';
+    this.title = init?.title ?? "";
+    this.creator = init?.creator ?? "";
+    this.annotation = init?.annotation ?? "";
+    this.info = init?.info ?? "";
+    this.location = init?.location ?? "";
+    this.identifier = init?.identifier ?? "";
+    this.image = init?.image ?? "";
+    this.date = init?.date ?? "";
+    this.license = init?.license ?? "";
     this.attribution = init?.attribution ? [...init.attribution] : [];
     this.link = init?.link ? [...init.link] : [];
     this.meta = init?.meta ? [...init.meta] : [];
     this.extension = init?.extension ? { ...init.extension } : {};
     const tracks = init?.track ?? [];
-    this.track = Array.isArray(tracks) ? tracks.map((entry) => Track.from(entry)) : [];
+    this.track = Array.isArray(tracks)
+      ? tracks.map((entry) => Track.from(entry))
+      : [];
   }
 
   setTitle(title: string): boolean {
@@ -498,18 +512,20 @@ export class Cspf {
   }
 
   isParsableTrack(track: unknown): track is TrackShape[] {
-    return Array.isArray(track) && track.every((entry) => Track.isParsable(entry));
+    return (
+      Array.isArray(track) && track.every((entry) => Track.isParsable(entry))
+    );
   }
 
   addTrack(
-    location = '',
-    identifier = '',
-    title = '',
-    creator = '',
-    annotation = '',
-    info = '',
-    image = '',
-    album = '',
+    location = "",
+    identifier = "",
+    title = "",
+    creator = "",
+    annotation = "",
+    info = "",
+    image = "",
+    album = "",
     trackNum = 0,
     duration = 0,
     link: PlaylistRecord[] = [],
@@ -562,8 +578,15 @@ export class Cspf {
     return true;
   }
 
-  private updateTrackField(trackId: number, updater: (track: Track) => boolean): boolean {
-    if (!Number.isInteger(trackId) || trackId < 0 || trackId >= this.track.length) {
+  private updateTrackField(
+    trackId: number,
+    updater: (track: Track) => boolean
+  ): boolean {
+    if (
+      !Number.isInteger(trackId) ||
+      trackId < 0 ||
+      trackId >= this.track.length
+    ) {
       return false;
     }
 
@@ -571,11 +594,15 @@ export class Cspf {
   }
 
   setTrackLocation(trackId: number, location: string): boolean {
-    return this.updateTrackField(trackId, (track) => track.setLocation(location));
+    return this.updateTrackField(trackId, (track) =>
+      track.setLocation(location)
+    );
   }
 
   setTrackIdentifier(trackId: number, identifier: string): boolean {
-    return this.updateTrackField(trackId, (track) => track.setIdentifier(identifier));
+    return this.updateTrackField(trackId, (track) =>
+      track.setIdentifier(identifier)
+    );
   }
 
   setTrackTitle(trackId: number, title: string): boolean {
@@ -587,7 +614,9 @@ export class Cspf {
   }
 
   setTrackAnnotation(trackId: number, annotation: string): boolean {
-    return this.updateTrackField(trackId, (track) => track.setAnnotation(annotation));
+    return this.updateTrackField(trackId, (track) =>
+      track.setAnnotation(annotation)
+    );
   }
 
   setTrackInfo(trackId: number, info: string): boolean {
@@ -603,11 +632,15 @@ export class Cspf {
   }
 
   setTrackTrackNum(trackId: number, trackNum: number): boolean {
-    return this.updateTrackField(trackId, (track) => track.setTrackNum(trackNum));
+    return this.updateTrackField(trackId, (track) =>
+      track.setTrackNum(trackNum)
+    );
   }
 
   setTrackDuration(trackId: number, duration: number): boolean {
-    return this.updateTrackField(trackId, (track) => track.setDuration(duration));
+    return this.updateTrackField(trackId, (track) =>
+      track.setDuration(duration)
+    );
   }
 
   setTrackLink(trackId: number, link: PlaylistRecord[]): boolean {
@@ -619,7 +652,9 @@ export class Cspf {
   }
 
   setTrackExtension(trackId: number, extension: PlaylistRecord): boolean {
-    return this.updateTrackField(trackId, (track) => track.setExtension(extension));
+    return this.updateTrackField(trackId, (track) =>
+      track.setExtension(extension)
+    );
   }
 
   toString(): string {
@@ -679,12 +714,13 @@ export class Cspf {
     try {
       const parsed: unknown = JSON.parse(decodeUtf8(bytes));
       if (!Cspf.isParsable(parsed)) {
-        throw new Error('Object stored in payload is not a CSPF playlist');
+        throw new Error("Object stored in payload is not a CSPF playlist");
       }
       this.hydrate(parsed);
-      callback?.(false, 'Playlist loaded successfully');
+      callback?.(false, "Playlist loaded successfully");
     } catch (error) {
-      const err = error instanceof Error ? error : new Error('Unknown error during load');
+      const err =
+        error instanceof Error ? error : new Error("Unknown error during load");
       callback?.(true, err.message, err);
       throw err;
     }
@@ -722,17 +758,17 @@ const normalizeToUint8Array = (input: ByteSource): Uint8Array => {
 };
 
 const encodeUtf8 = (value: string): Uint8Array => {
-  if (typeof TextEncoder !== 'undefined') {
+  if (typeof TextEncoder !== "undefined") {
     return new TextEncoder().encode(value);
   }
 
-  throw new Error('TextEncoder is not available in this environment.');
+  throw new Error("TextEncoder is not available in this environment.");
 };
 
 const decodeUtf8 = (value: ByteSource): string => {
-  if (typeof TextDecoder !== 'undefined') {
+  if (typeof TextDecoder !== "undefined") {
     return new TextDecoder().decode(normalizeToUint8Array(value));
   }
 
-  throw new Error('TextDecoder is not available in this environment.');
+  throw new Error("TextDecoder is not available in this environment.");
 };
