@@ -1,7 +1,6 @@
 name: on-push
 
-on:
-  pull_request:
+on: pull_request
 
 env:
     PNPM_VERSION: 10.24.0
@@ -42,14 +41,12 @@ jobs:
           tag: ${{ env.YQ_VERSION }}
           cache: enable
 
-      - name: Add CLI tools to PATH
-        run: echo "$HOME/.local/cli-tools/bin" >> "$GITHUB_PATH"
-
-      - name: Install cbor CLI
-        run: sudo dpkg -i "$HOME/.cache/cli-tools/cbor-cli.deb"
-
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+      
+      - name: Setup Mocks
+        run: |
+          ./scripts/xspf-to-cbor.sh ./test/resources/DeepHouse2025.xspf
 
       - name: Build
         run: pnpm run build
