@@ -48,9 +48,10 @@ jobs:
         with:
           repo: ironspecs/cbor-cli
           tag: ${{ env.CBOR_VERSION }}
-          # asset-name: ${{ steps.cbor-asset.outputs.asset }}
+          arch: amd64
           extension: "\\.deb"
           cache: enable
+          # asset-name: ${{ steps.cbor-asset.outputs.asset }}
       
       - name: Install yq
         uses: jaxxstorm/action-install-gh-release@v2.1.0
