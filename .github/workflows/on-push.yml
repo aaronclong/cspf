@@ -27,28 +27,29 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
 
-      - name: Determine cbor asset
-        id: cbor-asset
-        run: |
-          case "${{ runner.arch }}" in
-            X64) arch="amd64" ;;
-            ARM64) arch="arm64" ;;
-            ARM) arch="armhf" ;;
-            X86) arch="i386" ;;
-            *)
-              echo "Unsupported runner architecture: ${{ runner.arch }}" >&2
-              exit 1
-          esac
-          echo "asset=cbor-cli_${CBOR_VERSION}_${arch}.deb" >> "$GITHUB_OUTPUT"
-        env:
-          CBOR_VERSION: ${{ env.CBOR_VERSION }}
+      # - name: Determine cbor asset
+      #   id: cbor-asset
+      #   run: |
+      #     case "${{ runner.arch }}" in
+      #       X64) arch="amd64" ;;
+      #       ARM64) arch="arm64" ;;
+      #       ARM) arch="armhf" ;;
+      #       X86) arch="i386" ;;
+      #       *)
+      #         echo "Unsupported runner architecture: ${{ runner.arch }}" >&2
+      #         exit 1
+      #     esac
+      #     echo "asset=cbor-cli_${CBOR_VERSION}_${arch}.deb" >> "$GITHUB_OUTPUT"
+      #   env:
+      #     CBOR_VERSION: ${{ env.CBOR_VERSION }}
       
       - name: Install cbor
         uses: jaxxstorm/action-install-gh-release@v2.1.0
         with:
           repo: ironspecs/cbor-cli
           tag: ${{ env.CBOR_VERSION }}
-          asset-name: ${{ steps.cbor-asset.outputs.asset }}
+          # asset-name: ${{ steps.cbor-asset.outputs.asset }}
+          extension: "\\.deb"
           cache: enable
       
       - name: Install yq
