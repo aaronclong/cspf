@@ -658,8 +658,8 @@ export class Cspf {
     );
   }
 
-  toString(): string {
-    return JSON.stringify({
+  toJson(): Record<string, unknown> {
+    return {
       title: this.title,
       creator: this.creator,
       annotation: this.annotation,
@@ -674,7 +674,11 @@ export class Cspf {
       meta: this.meta,
       extension: this.extension,
       track: this.track,
-    });
+    };
+  }
+
+  toString(): string {
+    return JSON.stringify(this.toJson());
   }
 
   isCspf(arg: unknown): arg is Cspf {
@@ -708,7 +712,7 @@ export class Cspf {
   }
 
   toBytes(): Uint8Array {
-    return encodeUtf8(this.toString());
+    return encode(this.toJson());
   }
 
   loadFromBytes(bytes: ByteSource, callback?: OperationCallback): void {
@@ -745,7 +749,6 @@ export class Cspf {
   }
 }
 
-export default Cspf;
 const normalizeToUint8Array = (input: ByteSource): Uint8Array => {
   if (input instanceof Uint8Array) {
     return input;

@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-import Cspf, { Track, type PlaylistRecord, type TrackShape } from "../index";
+import { Cspf, Track, type PlaylistRecord, type TrackShape } from "../index";
 
 const createTrackShape = (overrides: Partial<TrackShape> = {}): TrackShape => ({
   location: "loc",
