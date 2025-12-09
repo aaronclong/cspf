@@ -1,4 +1,5 @@
 import { encode, decode } from "@ipld/dag-cbor";
+import type { ByteView, ArrayBufferView } from "multiformats";
 
 export type PlaylistRecord = Record<string, unknown>;
 
@@ -53,7 +54,7 @@ const isPlainObject = (value: unknown): value is PlaylistRecord =>
 const isDate = (value: unknown): value is Date =>
   value instanceof Date && !Number.isNaN(value.getTime());
 
-type ByteSource = ArrayBuffer | ArrayBufferView;
+type ByteSource<T = undefined> = ByteView<T> | ArrayBufferView<T>;
 
 const arraysEqual = (left: unknown[], right: unknown[]): boolean => {
   if (left.length !== right.length) {
@@ -712,7 +713,7 @@ export class Cspf {
 
   loadFromBytes(bytes: ByteSource, callback?: OperationCallback): void {
     try {
-      const parsed: unknown = JSON.parse(decodeUtf8(bytes));
+      const parsed: unknown = decode(bytes);
       if (!Cspf.isParsable(parsed)) {
         throw new Error("Object stored in payload is not a CSPF playlist");
       }
