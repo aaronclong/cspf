@@ -11,6 +11,9 @@ importers:
       '@ipld/dag-cbor':
         specifier: ^9.2.5
         version: 9.2.5
+      multiformats:
+        specifier: ^13.4.1
+        version: 13.4.1
     devDependencies:
       '@rollup/plugin-commonjs':
         specifier: ^29.0.0
