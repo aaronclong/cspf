@@ -28,14 +28,14 @@ jobs:
           cache: pnpm
       
       - name: Install cbor
-        uses: jaxxstorm/action-install-gh-release
+        uses: jaxxstorm/action-install-gh-release@v2.1.0
         with:
           repo: ironspecs/cbor-cli
           tag: ${{ env.CBOR_VERSION }}
           cache: enable
       
       - name: Install yq
-        uses: jaxxstorm/action-install-gh-release
+        uses: jaxxstorm/action-install-gh-release@v2.1.0
         with:
           repo: mikefarah/yq
           tag: ${{ env.YQ_VERSION }}
