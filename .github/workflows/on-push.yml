@@ -44,15 +44,14 @@ jobs:
           CBOR_VERSION: ${{ env.CBOR_VERSION }}
       
       - name: Install cbor
-        uses: sigoden/install-binary@v1
+        uses: jaxxstorm/action-install-gh-release@v2.1.0
         with:
           repo: ironspecs/cbor-cli
+          arch: amd64
           tag: ${{ env.CBOR_VERSION }}
-          name: ${{ steps.cbor-asset.outputs.asset }}
-          # arch: amd64
-          # extension: "\\.deb"
-          # cache: enable
-          # extension-matching: disable
+          extension: "\\.deb"
+          cache: enable
+          # asset: ${{ steps.cbor-asset.outputs.asset }}
       
       - name: Install yq
         uses: jaxxstorm/action-install-gh-release@v2.1.0
