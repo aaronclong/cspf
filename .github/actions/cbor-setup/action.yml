@@ -1,0 +1,87 @@
+name: Setup cbor CLI
+description: Download and install ironspecs/cbor-cli release asset with caching.
+
+inputs:
+  version:
+    description: Release tag (e.g. v0.5.0).
+    required: true
+  repo:
+    description: GitHub repository that hosts the cbor CLI release.
+    required: false
+    default: ironspecs/cbor-cli
+
+runs:
+  using: composite
+  steps:
+    - name: Compute asset metadata
+      id: meta
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        case "${{ runner.arch }}" in
+          X64) arch="amd64" ;;
+          ARM64) arch="arm64" ;;
+          ARM) arch="armhf" ;;
+          X86) arch="i386" ;;
+          *)
+            echo "Error: Unsupported runner architecture '${{ runner.arch }}'." >&2
+            exit 1
+        esac
+
+        asset="cbor-cli_${{ inputs.version }}_${arch}.deb"
+        cache_path="${RUNNER_TEMP}/cbor-cli"
+        asset_path="${cache_path}/${asset}"
+
+        echo "arch=${arch}" >> "$GITHUB_OUTPUT"
+        echo "asset=${asset}" >> "$GITHUB_OUTPUT"
+        echo "cache-path=${cache_path}" >> "$GITHUB_OUTPUT"
+        echo "asset-path=${asset_path}" >> "$GITHUB_OUTPUT"
+
+    - name: Prepare cache directory
+      shell: bash
+      run: |
+        set -euo pipefail
+        mkdir -p "${{ steps.meta.outputs.cache-path }}"
+
+    - name: Cache cbor asset
+      id: cache
+      uses: actions/cache@v4
+      with:
+        path: ${{ steps.meta.outputs.cache-path }}
+        key: cbor-cli-${{ inputs.version }}-${{ steps.meta.outputs.arch }}
+
+    - name: Download cbor asset
+      if: ${{ steps.cache.outputs.cache-hit != 'true' }}
+      shell: bash
+      env:
+        REPO: ${{ inputs.repo }}
+        VERSION: ${{ inputs.version }}
+      run: |
+        set -euo pipefail
+
+        asset="${{ steps.meta.outputs.asset }}"
+        url="https://github.com/${REPO}/releases/download/${VERSION}/${asset}"
+        tmp_file="$(mktemp)"
+
+        echo "Downloading ${url}"
+        if ! curl -fSL "$url" -o "$tmp_file"; then
+          echo "Error: Failed to download '${asset}' from ${url}." >&2
+          exit 1
+        fi
+
+        mv "$tmp_file" "${{ steps.meta.outputs.asset-path }}"
+
+    - name: Install cbor CLI
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        asset_path="${{ steps.meta.outputs.asset-path }}"
+        if [[ ! -f "$asset_path" ]]; then
+          echo "Error: Expected asset '$asset_path' does not exist." >&2
+          exit 1
+        fi
+
+        echo "Installing cbor CLI from $asset_path"
+        sudo dpkg -i "$asset_path"
