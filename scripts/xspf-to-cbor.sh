@@ -27,7 +27,7 @@ if [[ $# -ge 2 ]]; then
   output="$2"
 else
   base="$(basename "$input")"
-  output="${base%.*}.cbor"
+  output="${base%.*}.cspf"
 fi
 
 yq -o=json -p=xml --xml-attribute-prefix='@' "$input" | cbor import --format=json > "$output"
