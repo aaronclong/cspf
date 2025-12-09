@@ -12,6 +12,10 @@ command -v cbor >/dev/null 2>&1 || {
   exit 1
 }
 
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+repo_root="$(cd "$script_dir/.." && pwd)"
+output_dir="$repo_root/test/resources"
+
 if [[ $# -lt 1 ]]; then
   echo "Usage: $0 <path-to-xspf> [output.cbor]" >&2
   exit 1
@@ -27,7 +31,8 @@ if [[ $# -ge 2 ]]; then
   output="$2"
 else
   base="$(basename "$input")"
-  output="${base%.*}.cspf"
+  mkdir -p "$output_dir"
+  output="$output_dir/${base%.*}.cspf"
 fi
 
 yq -o=json -p=xml --xml-attribute-prefix='@' "$input" | cbor import --format=json > "$output"
