@@ -748,31 +748,3 @@ export class Cspf {
     this.setTrack(data.track);
   }
 }
-
-const normalizeToUint8Array = (input: ByteSource): Uint8Array => {
-  if (input instanceof Uint8Array) {
-    return input;
-  }
-
-  if (ArrayBuffer.isView(input)) {
-    return new Uint8Array(input.buffer, input.byteOffset, input.byteLength);
-  }
-
-  return new Uint8Array(input);
-};
-
-const encodeUtf8 = (value: string): Uint8Array => {
-  if (typeof TextEncoder !== "undefined") {
-    return new TextEncoder().encode(value);
-  }
-
-  throw new Error("TextEncoder is not available in this environment.");
-};
-
-const decodeUtf8 = (value: ByteSource): string => {
-  if (typeof TextDecoder !== "undefined") {
-    return new TextDecoder().decode(normalizeToUint8Array(value));
-  }
-
-  throw new Error("TextDecoder is not available in this environment.");
-};
