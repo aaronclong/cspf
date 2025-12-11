@@ -54,7 +54,7 @@ const isPlainObject = (value: unknown): value is PlaylistRecord =>
 const isDate = (value: unknown): value is Date =>
   value instanceof Date && !Number.isNaN(value.getTime());
 
-type ByteSource<T = undefined> = ByteView<T> | ArrayBufferView<T>;
+type ByteSource<T = unknown> = ByteView<T> | ArrayBufferView<T>;
 
 const arraysEqual = (left: unknown[], right: unknown[]): boolean => {
   if (left.length !== right.length) {
@@ -715,36 +715,21 @@ export class Cspf {
     return encode(this.toJson());
   }
 
-  loadFromBytes(bytes: ByteSource, callback?: OperationCallback): void {
+  static loadFromBytes(bytes: ByteSource, callback?: OperationCallback): Cspf {
     try {
       const parsed: unknown = decode(bytes);
       if (!Cspf.isParsable(parsed)) {
         throw new Error("Object stored in payload is not a CSPF playlist");
       }
-      this.hydrate(parsed);
+
+      const playlist = new Cspf(parsed);
       callback?.(false, "Playlist loaded successfully");
+      return playlist;
     } catch (error) {
       const err =
         error instanceof Error ? error : new Error("Unknown error during load");
       callback?.(true, err.message, err);
       throw err;
     }
-  }
-
-  private hydrate(data: CspfShape): void {
-    this.setTitle(data.title);
-    this.setCreator(data.creator);
-    this.setAnnotation(data.annotation);
-    this.setInfo(data.info);
-    this.setLocation(data.location);
-    this.setIdentifier(data.identifier);
-    this.setImage(data.image);
-    this.setDate(data.date);
-    this.setLicense(data.license);
-    this.setAttribution(data.attribution);
-    this.setLink(data.link);
-    this.setMeta(data.meta);
-    this.setExtension(data.extension);
-    this.setTrack(data.track);
   }
 }

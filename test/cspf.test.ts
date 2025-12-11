@@ -1,3 +1,4 @@
+import { encode } from "@ipld/dag-cbor";
 import { describe, expect, it, vi } from "vitest";
 
 import { Cspf, Track, type PlaylistRecord, type TrackShape } from "../index";
@@ -174,16 +175,15 @@ describe("Cspf", () => {
     const bytes = playlist.toBytes();
     expect(bytes).toBeInstanceOf(Uint8Array);
 
-    const clone = new Cspf();
     const success = vi.fn();
-    clone.loadFromBytes(bytes, success);
+    const clone = Cspf.loadFromBytes(bytes, success);
     expect(success).toHaveBeenCalledWith(false, "Playlist loaded successfully");
     expect(clone.getTitle()).toBe("Encoded");
     expect(clone.getTrack()).toHaveLength(1);
 
     const failure = vi.fn();
-    const badPayload = new TextEncoder().encode('{"track":null}');
-    expect(() => clone.loadFromBytes(badPayload, failure)).toThrowError(
+    const badPayload = encode<unknown>({ track: null });
+    expect(() => Cspf.loadFromBytes(badPayload, failure)).toThrowError(
       /not a CSPF playlist/
     );
     expect(failure).toHaveBeenCalled();
