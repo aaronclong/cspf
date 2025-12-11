@@ -1,40 +1,51 @@
 import { encode, decode } from "@ipld/dag-cbor";
 import type { ByteView, ArrayBufferView } from "multiformats";
+import { z } from "zod";
 
-export type PlaylistRecord = Record<string, unknown>;
+const stringSchema = z.string();
+const numberSchema = z.number();
+const dateSchema = z.iso.date();
+const playlistRecordSchema = z.object({}).catchall(z.unknown());
+const playlistRecordArraySchema = z.array(playlistRecordSchema);
 
-export interface TrackShape {
-  location: string;
-  identifier: string;
-  title: string;
-  creator: string;
-  annotation: string;
-  info: string;
-  image: string;
-  album: string;
-  trackNum: number;
-  duration: number;
-  link: PlaylistRecord[];
-  meta: PlaylistRecord[];
-  extension: PlaylistRecord;
-}
+const trackShapeSchema = z.object({
+  location: stringSchema,
+  identifier: stringSchema,
+  title: stringSchema,
+  creator: stringSchema,
+  annotation: stringSchema,
+  info: stringSchema,
+  image: stringSchema,
+  album: stringSchema,
+  trackNum: numberSchema,
+  duration: numberSchema,
+  link: playlistRecordArraySchema,
+  meta: playlistRecordArraySchema,
+  extension: playlistRecordSchema,
+});
 
-export interface CspfShape {
-  title: string;
-  creator: string;
-  annotation: string;
-  info: string;
-  location: string;
-  identifier: string;
-  image: string;
-  date: string | Date;
-  license: string;
-  attribution: PlaylistRecord[];
-  link: PlaylistRecord[];
-  meta: PlaylistRecord[];
-  extension: PlaylistRecord;
-  track: TrackShape[];
-}
+const trackShapeArraySchema = z.array(trackShapeSchema);
+
+const cspfShapeSchema = z.object({
+  title: stringSchema,
+  creator: stringSchema,
+  annotation: stringSchema,
+  info: stringSchema,
+  location: stringSchema,
+  identifier: stringSchema,
+  image: stringSchema,
+  date: z.union([stringSchema, dateSchema]),
+  license: stringSchema,
+  attribution: playlistRecordArraySchema,
+  link: playlistRecordArraySchema,
+  meta: playlistRecordArraySchema,
+  extension: playlistRecordSchema,
+  track: trackShapeArraySchema,
+});
+
+export type PlaylistRecord = z.infer<typeof playlistRecordSchema>;
+export type TrackShape = z.infer<typeof trackShapeSchema>;
+export type CspfShape = z.infer<typeof cspfShapeSchema>;
 
 type OperationCallback = (
   isError: boolean,
@@ -46,13 +57,16 @@ type CspfInitializer = Partial<Omit<CspfShape, "track">> & {
   track?: Array<TrackShape | Track>;
 };
 
-const isString = (value: unknown): value is string => typeof value === "string";
+const isString = (value: unknown): value is string =>
+  stringSchema.safeParse(value).success;
 const isNumber = (value: unknown): value is number =>
-  typeof value === "number" && Number.isFinite(value);
+  numberSchema.safeParse(value).success;
 const isPlainObject = (value: unknown): value is PlaylistRecord =>
-  typeof value === "object" && value !== null && !Array.isArray(value);
+  playlistRecordSchema.safeParse(value).success;
 const isDate = (value: unknown): value is Date =>
-  value instanceof Date && !Number.isNaN(value.getTime());
+  dateSchema.safeParse(value).success;
+const isPlaylistRecordArray = (value: unknown): value is PlaylistRecord[] =>
+  playlistRecordArraySchema.safeParse(value).success;
 
 type ByteSource<T = unknown> = ByteView<T> | ArrayBufferView<T>;
 
@@ -223,7 +237,7 @@ export class Track {
   }
 
   setLink(link: PlaylistRecord[]): boolean {
-    if (!Array.isArray(link)) return false;
+    if (!isPlaylistRecordArray(link)) return false;
     this.link = [...link];
     return true;
   }
@@ -233,7 +247,7 @@ export class Track {
   }
 
   setMeta(meta: PlaylistRecord[]): boolean {
-    if (!Array.isArray(meta)) return false;
+    if (!isPlaylistRecordArray(meta)) return false;
     this.meta = [...meta];
     return true;
   }
@@ -285,23 +299,7 @@ export class Track {
   }
 
   static isParsable(arg: unknown): arg is TrackShape {
-    if (!isPlainObject(arg)) return false;
-
-    return (
-      isString(arg.location) &&
-      isString(arg.identifier) &&
-      isString(arg.title) &&
-      isString(arg.creator) &&
-      isString(arg.annotation) &&
-      isString(arg.info) &&
-      isString(arg.image) &&
-      isString(arg.album) &&
-      isNumber(arg.trackNum) &&
-      isNumber(arg.duration) &&
-      Array.isArray(arg.link) &&
-      Array.isArray(arg.meta) &&
-      isPlainObject(arg.extension)
-    );
+    return trackShapeSchema.safeParse(arg).success;
   }
 
   static from(track: Track | TrackShape): Track {
@@ -444,7 +442,7 @@ export class Cspf {
   }
 
   setAttribution(attribution: PlaylistRecord[]): boolean {
-    if (!Array.isArray(attribution)) return false;
+    if (!isPlaylistRecordArray(attribution)) return false;
     this.attribution = [...attribution];
     return true;
   }
@@ -454,7 +452,7 @@ export class Cspf {
   }
 
   setLink(link: PlaylistRecord[]): boolean {
-    if (!Array.isArray(link)) return false;
+    if (!isPlaylistRecordArray(link)) return false;
     this.link = [...link];
     return true;
   }
@@ -464,7 +462,7 @@ export class Cspf {
   }
 
   setMeta(meta: PlaylistRecord[]): boolean {
-    if (!Array.isArray(meta)) return false;
+    if (!isPlaylistRecordArray(meta)) return false;
     this.meta = [...meta];
     return true;
   }
@@ -513,9 +511,7 @@ export class Cspf {
   }
 
   isParsableTrack(track: unknown): track is TrackShape[] {
-    return (
-      Array.isArray(track) && track.every((entry) => Track.isParsable(entry))
-    );
+    return trackShapeArraySchema.safeParse(track).success;
   }
 
   addTrack(
@@ -690,25 +686,7 @@ export class Cspf {
   }
 
   static isParsable(arg: unknown): arg is CspfShape {
-    if (!isPlainObject(arg)) return false;
-
-    return (
-      isString(arg.title) &&
-      isString(arg.creator) &&
-      isString(arg.annotation) &&
-      isString(arg.info) &&
-      isString(arg.location) &&
-      isString(arg.identifier) &&
-      isString(arg.image) &&
-      (isString(arg.date) || isDate(arg.date)) &&
-      isString(arg.license) &&
-      Array.isArray(arg.attribution) &&
-      Array.isArray(arg.link) &&
-      Array.isArray(arg.meta) &&
-      isPlainObject(arg.extension) &&
-      Array.isArray(arg.track) &&
-      arg.track.every((entry) => Track.isParsable(entry))
-    );
+    return cspfShapeSchema.safeParse(arg).success;
   }
 
   toBytes(): Uint8Array {
