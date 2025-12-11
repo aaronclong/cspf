@@ -3,6 +3,7 @@ import commonjs from '@rollup/plugin-commonjs';
 import typescript from '@rollup/plugin-typescript';
 
 const input = 'index.ts';
+const externalDependencies = ['@ipld/dag-cbor', 'multiformats', 'zod'];
 
 const createTsPlugin = (compilerOptions = {}) =>
   typescript({
@@ -13,8 +14,9 @@ const createTsPlugin = (compilerOptions = {}) =>
 export default [
   {
     input,
+    external: externalDependencies,
     output: {
-      file: 'dist/cspf.node.cjs',
+      file: 'dist/cspf.cjs',
       format: 'cjs',
       sourcemap: true,
       exports: 'named'
@@ -27,8 +29,9 @@ export default [
   },
   {
     input,
+    external: externalDependencies,
     output: {
-      file: 'dist/cspf.browser.js',
+      file: 'dist/cspf.mjs',
       format: 'esm',
       sourcemap: true
     },

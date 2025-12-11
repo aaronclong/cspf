@@ -21,15 +21,15 @@
     "multiformats": "^13.4.1",
     "zod": "^4.1.13"
   },
-  "main": "dist/cspf.node.cjs",
-  "module": "dist/cspf.browser.js",
+  "main": "dist/cspf.cjs",
+  "module": "dist/cspf.mjs",
   "types": "dist/types/index.d.ts",
-  "browser": "dist/cspf.browser.js",
+  "browser": "dist/cspf.mjs",
   "exports": {
     ".": {
       "types": "./dist/types/index.d.ts",
-      "import": "./dist/cspf.browser.js",
-      "require": "./dist/cspf.node.cjs"
+      "import": "./dist/cspf.mjs",
+      "require": "./dist/cspf.cjs"
     }
   },
   "scripts": {
