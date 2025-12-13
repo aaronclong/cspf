@@ -1,12 +1,8 @@
 import { encode } from "@ipld/dag-cbor";
 import { describe, expect, it, vi } from "vitest";
 
-import {
-  Cspf,
-  Track,
-  type PlaylistRecord,
-  type TrackShape,
-} from "../meta-data-dtos";
+import { Cspf, Track } from "../meta-data-dtos";
+import { type PlaylistRecord, type TrackShape } from "../types-with-validators";
 
 const createTrackShape = (overrides: Partial<TrackShape> = {}): TrackShape => ({
   location: "loc",
