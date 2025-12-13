@@ -4,8 +4,7 @@
     "module": "ESNext",
     "moduleResolution": "node",
     "lib": ["ES2019", "DOM"],
-    "declaration": true,
-    "declarationDir": "dist/types",
+    "declaration": false,
     "emitDeclarationOnly": false,
     "sourceMap": true,
     "strict": true,
@@ -14,6 +13,6 @@
     "rootDir": ".",
     "outDir": "dist"
   },
-  "include": ["index.ts"],
-  "exclude": ["node_modules", "dist", "test"]
+  "include": ["cspf/index.ts"],
+  "exclude": ["node_modules", "dist", "*.test.*"]
 }
