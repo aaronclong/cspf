@@ -3,7 +3,7 @@ import commonjs from "@rollup/plugin-commonjs";
 import typescript from "@rollup/plugin-typescript";
 import { dts } from "rollup-plugin-dts";
 
-const input = "index.ts";
+const input = "cspf/index.ts";
 const externalDependencies = ["@ipld/dag-cbor", "multiformats", "zod"];
 
 const createTsPlugin = (compilerOptions = {}) =>
@@ -17,7 +17,7 @@ export default [
     input,
     external: externalDependencies,
     output: {
-      file: "dist/cspf.cjs",
+      file: "dist/index.cjs",
       format: "cjs",
       sourcemap: true,
       exports: "named",
@@ -32,7 +32,7 @@ export default [
     input,
     external: externalDependencies,
     output: {
-      file: "dist/cspf.mjs",
+      file: "dist/index.mjs",
       format: "esm",
       sourcemap: true,
     },
@@ -45,7 +45,7 @@ export default [
   {
     // input: "./my-input/index.d.ts",
     input,
-    output: [{ file: "dist/cspf.d.ts", format: "es" }],
+    output: [{ file: "dist/index.d.ts", format: "es" }],
     plugins: [dts()],
   },
 ];
