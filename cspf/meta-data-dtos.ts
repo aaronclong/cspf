@@ -1,51 +1,19 @@
 import { encode, decode } from "@ipld/dag-cbor";
-import type { ByteView, ArrayBufferView } from "multiformats";
-import { z } from "zod";
-
-const stringSchema = z.string();
-const numberSchema = z.number();
-const dateSchema = z.iso.date();
-const playlistRecordSchema = z.object({}).catchall(z.unknown());
-const playlistRecordArraySchema = z.array(playlistRecordSchema);
-
-const trackShapeSchema = z.object({
-  location: stringSchema,
-  identifier: stringSchema,
-  title: stringSchema,
-  creator: stringSchema,
-  annotation: stringSchema,
-  info: stringSchema,
-  image: stringSchema,
-  album: stringSchema,
-  trackNum: numberSchema,
-  duration: numberSchema,
-  link: playlistRecordArraySchema,
-  meta: playlistRecordArraySchema,
-  extension: playlistRecordSchema,
-});
-
-const trackShapeArraySchema = z.array(trackShapeSchema);
-
-const cspfShapeSchema = z.object({
-  title: stringSchema,
-  creator: stringSchema,
-  annotation: stringSchema,
-  info: stringSchema,
-  location: stringSchema,
-  identifier: stringSchema,
-  image: stringSchema,
-  date: z.union([stringSchema, dateSchema]),
-  license: stringSchema,
-  attribution: playlistRecordArraySchema,
-  link: playlistRecordArraySchema,
-  meta: playlistRecordArraySchema,
-  extension: playlistRecordSchema,
-  track: trackShapeArraySchema,
-});
-
-export type PlaylistRecord = z.infer<typeof playlistRecordSchema>;
-export type TrackShape = z.infer<typeof trackShapeSchema>;
-export type CspfShape = z.infer<typeof cspfShapeSchema>;
+import {
+  TrackShape,
+  CspfShape,
+  PlaylistRecord,
+  isDate,
+  isString,
+  ByteSource,
+  isNumber,
+  isPlaylistRecordArray,
+  isPlainObject,
+  trackShapeArraySchema,
+  cspfShapeSchema,
+  trackShapeSchema,
+} from "./types-with-validators";
+import { arraysEqual, objectsEqual } from "./object-comparer";
 
 type OperationCallback = (
   isError: boolean,
@@ -55,54 +23,6 @@ type OperationCallback = (
 type TrackInitializer = Partial<TrackShape>;
 type CspfInitializer = Partial<Omit<CspfShape, "track">> & {
   track?: Array<TrackShape | Track>;
-};
-
-const isString = (value: unknown): value is string =>
-  stringSchema.safeParse(value).success;
-const isNumber = (value: unknown): value is number =>
-  numberSchema.safeParse(value).success;
-const isPlainObject = (value: unknown): value is PlaylistRecord =>
-  playlistRecordSchema.safeParse(value).success;
-const isDate = (value: unknown): value is Date =>
-  dateSchema.safeParse(value).success;
-const isPlaylistRecordArray = (value: unknown): value is PlaylistRecord[] =>
-  playlistRecordArraySchema.safeParse(value).success;
-
-type ByteSource<T = unknown> = ByteView<T> | ArrayBufferView<T>;
-
-const arraysEqual = (left: unknown[], right: unknown[]): boolean => {
-  if (left.length !== right.length) {
-    return false;
-  }
-
-  return left.every((entry, index) => valuesEqual(entry, right[index]));
-};
-
-const objectsEqual = (left: PlaylistRecord, right: PlaylistRecord): boolean => {
-  const leftKeys = Object.keys(left);
-  const rightKeys = Object.keys(right);
-
-  if (leftKeys.length !== rightKeys.length) {
-    return false;
-  }
-
-  return leftKeys.every(
-    (key) =>
-      Object.prototype.hasOwnProperty.call(right, key) &&
-      valuesEqual(left[key], right[key])
-  );
-};
-
-const valuesEqual = (left: unknown, right: unknown): boolean => {
-  if (Array.isArray(left) && Array.isArray(right)) {
-    return arraysEqual(left, right);
-  }
-
-  if (isPlainObject(left) && isPlainObject(right)) {
-    return objectsEqual(left, right);
-  }
-
-  return Object.is(left, right);
 };
 
 export class Track {
