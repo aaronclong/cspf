@@ -27,9 +27,9 @@
   "browser": "dist/cspf.mjs",
   "exports": {
     ".": {
-      "types": "./dist/types/index.d.ts",
-      "import": "./dist/cspf.mjs",
-      "require": "./dist/cspf.cjs"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
     }
   },
   "scripts": {
