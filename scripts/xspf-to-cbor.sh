@@ -14,7 +14,7 @@ command -v cbor >/dev/null 2>&1 || {
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 repo_root="$(cd "$script_dir/.." && pwd)"
-output_dir="$repo_root/test/resources"
+output_dir="$repo_root/cspf/__tests__/resources"
 
 if [[ $# -lt 1 ]]; then
   echo "Usage: $0 <path-to-xspf> [output.cbor]" >&2
