@@ -609,7 +609,9 @@ export class Cspf {
 
   static isParsable(arg: unknown): arg is CspfShape {
     const parseStatus = cspfShapeSchema.safeParse(arg);
-    console.log("error", parseStatus.error);
+    if (parseStatus.error) {
+      logger.debug("Unparasble playlist", parseStatus.error);
+    }
     return parseStatus.success;
   }
 
@@ -620,7 +622,6 @@ export class Cspf {
   static loadFromBytes(bytes: ByteSource, callback?: OperationCallback): Cspf {
     try {
       const parsed: unknown = decode(bytes);
-      console.log("parsed", parsed);
       if (!Cspf.isParsable(parsed)) {
         throw new Error("Object stored in payload is not a CSPF playlist");
       }
