@@ -1,4 +1,6 @@
 import { encode, decode } from "@ipld/dag-cbor";
+
+import { logger } from "./logger";
 import {
   TrackShape,
   CspfShape,
@@ -606,7 +608,9 @@ export class Cspf {
   }
 
   static isParsable(arg: unknown): arg is CspfShape {
-    return cspfShapeSchema.safeParse(arg).success;
+    const parseStatus = cspfShapeSchema.safeParse(arg);
+    console.log("error", parseStatus.error);
+    return parseStatus.success;
   }
 
   toBytes(): Uint8Array {
@@ -616,6 +620,7 @@ export class Cspf {
   static loadFromBytes(bytes: ByteSource, callback?: OperationCallback): Cspf {
     try {
       const parsed: unknown = decode(bytes);
+      console.log("parsed", parsed);
       if (!Cspf.isParsable(parsed)) {
         throw new Error("Object stored in payload is not a CSPF playlist");
       }

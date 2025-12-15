@@ -1,7 +1,9 @@
-import { encode } from "@ipld/dag-cbor";
-import { describe, expect, it, vi } from "vitest";
+import { readFile } from "node:fs";
 
-import { Cspf, Track } from "../meta-data-dtos";
+import { encode } from "@ipld/dag-cbor";
+import { describe, expect, test, vi } from "vitest";
+
+import { Cspf, Track } from "../metadata-dtos";
 import { type PlaylistRecord, type TrackShape } from "../types-with-validators";
 
 const createTrackShape = (overrides: Partial<TrackShape> = {}): TrackShape => ({
@@ -21,8 +23,19 @@ const createTrackShape = (overrides: Partial<TrackShape> = {}): TrackShape => ({
   ...overrides,
 });
 
+const testFileLoader = (file: string): Promise<Uint8Array> => {
+  return new Promise((resolve, reject) => {
+    readFile(file, (err, data) => {
+      if (err) {
+        reject(err);
+      }
+      resolve(data);
+    });
+  });
+};
+
 describe("Track", () => {
-  it("initializes with defaults and exposes type guards", () => {
+  test("initializes with defaults and exposes type guards", () => {
     const track = new Track();
     expect(track.location).toBe("");
     expect(track.identifier).toBe("");
@@ -36,7 +49,7 @@ describe("Track", () => {
     expect(track.parsable(parsed)).toBe(true);
   });
 
-  it("accepts valid setter input and rejects invalid data", () => {
+  test("accepts valid setter input and rejects invalid data", () => {
     const track = new Track();
     expect(track.setLocation("wherever")).toBe(true);
     expect(track.getLocation()).toBe("wherever");
@@ -73,7 +86,7 @@ describe("Track", () => {
     expect(track.setExtension("nope" as unknown as PlaylistRecord)).toBe(false);
   });
 
-  it("compares and parses track payloads", () => {
+  test("compares and parses track payloads", () => {
     const shape = createTrackShape({ trackNum: 10 });
     const a = new Track(shape);
     const b = new Track(shape);
@@ -85,7 +98,7 @@ describe("Track", () => {
     expect(Track.isParsable(JSON.parse(serialized))).toBe(true);
   });
 
-  it("creates tracks from shapes and rejects invalid payloads", () => {
+  test("creates tracks from shapes and rejects invalid payloads", () => {
     const shape = createTrackShape();
     const converted = Track.from(shape);
     expect(converted).toBeInstanceOf(Track);
@@ -95,7 +108,7 @@ describe("Track", () => {
 });
 
 describe("Cspf", () => {
-  it("manages playlist level metadata", () => {
+  test("manages playlist level metadata", () => {
     const playlist = new Cspf();
     expect(playlist.isCspf(playlist)).toBe(true);
     expect(playlist.setTitle("My Playlist")).toBe(true);
@@ -118,7 +131,7 @@ describe("Cspf", () => {
     expect(playlist.parsable(JSON.parse(serialized))).toBe(true);
   });
 
-  it("manages track collections with validation helpers", () => {
+  test("manages track collections with validation helpers", () => {
     const playlist = new Cspf({ track: [createTrackShape()] });
     expect(playlist.getTrack()).toHaveLength(1);
     expect(playlist.getTrackById(0)?.title).toBe("title");
@@ -147,7 +160,7 @@ describe("Cspf", () => {
     expect(playlist.setTrack(["nope" as unknown as Track])).toBe(false);
   });
 
-  it("updates track fields by index", () => {
+  test("updates track fields by index", () => {
     const playlist = new Cspf({ track: [createTrackShape()] });
 
     expect(playlist.setTrackLocation(0, "updated")).toBe(true);
@@ -168,7 +181,7 @@ describe("Cspf", () => {
     expect(playlist.setTrackLocation(5, "missing")).toBe(false);
   });
 
-  it("serializes to bytes and loads from bytes with callbacks", () => {
+  test("serializes to bytes and loads from bytes with callbacks", () => {
     const playlist = new Cspf({
       title: "Encoded",
       track: [createTrackShape({ title: "encoded track" })],
@@ -189,5 +202,18 @@ describe("Cspf", () => {
     );
     expect(failure).toHaveBeenCalled();
     expect(failure.mock.calls[0][0]).toBe(true);
+  });
+
+  test("loads DeepHouse2025.cspf when generated locally", async () => {
+    // { skip: !process.env.CI },
+
+    const fileBytes = await testFileLoader(
+      "./cspf/__tests__/resources/DeepHouse2025.cspf"
+    );
+    console.log("Bytes", fileBytes);
+
+    const playlist = Cspf.loadFromBytes(fileBytes);
+
+    expect(playlist.getTrack().length).toBeGreaterThan(0);
   });
 });
