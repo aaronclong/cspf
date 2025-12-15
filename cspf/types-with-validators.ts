@@ -7,40 +7,44 @@ export const dateSchema = z.iso.date();
 export const playlistRecordSchema = z.object({}).catchall(z.unknown());
 export const playlistRecordArraySchema = z.array(playlistRecordSchema);
 
-export const trackShapeSchema = z.object({
-  location: stringSchema,
-  identifier: stringSchema,
-  title: stringSchema,
-  creator: stringSchema,
-  annotation: stringSchema,
-  info: stringSchema,
-  image: stringSchema,
-  album: stringSchema,
-  trackNum: numberSchema,
-  duration: numberSchema,
-  link: playlistRecordArraySchema,
-  meta: playlistRecordArraySchema,
-  extension: playlistRecordSchema,
-});
+export const trackShapeSchema = z
+  .object({
+    location: stringSchema,
+    identifier: stringSchema,
+    title: stringSchema,
+    creator: stringSchema,
+    annotation: stringSchema,
+    info: stringSchema,
+    image: stringSchema,
+    album: stringSchema,
+    trackNum: numberSchema,
+    duration: numberSchema,
+    link: playlistRecordArraySchema,
+    meta: playlistRecordArraySchema,
+    extension: playlistRecordSchema,
+  })
+  .partial();
 
 export const trackShapeArraySchema = z.array(trackShapeSchema);
 
-export const cspfShapeSchema = z.object({
-  title: stringSchema,
-  creator: stringSchema,
-  annotation: stringSchema,
-  info: stringSchema,
-  location: stringSchema,
-  identifier: stringSchema,
-  image: stringSchema,
-  date: z.union([stringSchema, dateSchema]),
-  license: stringSchema,
-  attribution: playlistRecordArraySchema,
-  link: playlistRecordArraySchema,
-  meta: playlistRecordArraySchema,
-  extension: playlistRecordSchema,
-  track: trackShapeArraySchema,
-});
+export const cspfShapeSchema = z
+  .object({
+    title: stringSchema,
+    creator: stringSchema,
+    annotation: stringSchema,
+    info: stringSchema,
+    location: stringSchema,
+    identifier: stringSchema,
+    image: stringSchema,
+    date: z.union([stringSchema, dateSchema]),
+    license: stringSchema,
+    attribution: playlistRecordArraySchema,
+    link: playlistRecordArraySchema,
+    meta: playlistRecordArraySchema,
+    extension: playlistRecordSchema,
+    track: trackShapeArraySchema,
+  })
+  .partial();
 
 export type PlaylistRecord = z.infer<typeof playlistRecordSchema>;
 export type TrackShape = z.infer<typeof trackShapeSchema>;
