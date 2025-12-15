@@ -21,10 +21,10 @@
     "multiformats": "^13.4.1",
     "zod": "^4.1.13"
   },
-  "main": "dist/cspf.cjs",
-  "module": "dist/cspf.mjs",
-  "types": "dist/types/index.d.ts",
-  "browser": "dist/cspf.mjs",
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "browser": "dist/index.mjs",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
