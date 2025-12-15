@@ -103,7 +103,10 @@ describe("Track", () => {
     const converted = Track.from(shape);
     expect(converted).toBeInstanceOf(Track);
     expect(converted.compare(new Track(shape))).toBe(true);
-    expect(() => Track.from({} as TrackShape)).toThrowError(/parsable/);
+    expect(Track.from({})).toBeInstanceOf(Track);
+    expect(() =>
+      Track.from({ location: 123 } as unknown as TrackShape)
+    ).toThrowError(/parsable/);
   });
 });
 
@@ -138,17 +141,25 @@ describe("Cspf", () => {
     expect(playlist.getTrackById(10)).toBeUndefined();
 
     expect(playlist.isTrack([new Track()])).toBe(true);
-    expect(playlist.isTrack([{}])).toBe(false);
+    expect(playlist.isTrack([{}])).toBe(true);
+    expect(playlist.isTrack([42 as unknown as TrackShape])).toBe(false);
     expect(playlist.isParsableTrack([createTrackShape()])).toBe(true);
-    expect(playlist.isParsableTrack([{}])).toBe(false);
+    expect(playlist.isParsableTrack([{}])).toBe(true);
+    expect(playlist.isParsableTrack(["nope" as unknown as TrackShape])).toBe(
+      false
+    );
 
     const pushCandidate = new Track(createTrackShape({ title: "two" }));
     expect(playlist.pushTrack(pushCandidate)).toBe(true);
     expect(playlist.getTrack()).toHaveLength(2);
-    expect(playlist.pushTrack({} as TrackShape)).toBe(false);
+    expect(playlist.pushTrack({} as TrackShape)).toBe(true);
+    expect(playlist.getTrack()).toHaveLength(3);
+    expect(playlist.pushTrack({ location: 123 } as unknown as TrackShape)).toBe(
+      false
+    );
 
     expect(playlist.addTrack("loc", "identifier", "third")).toBe(true);
-    expect(playlist.getTrack()).toHaveLength(3);
+    expect(playlist.getTrack()).toHaveLength(4);
 
     expect(playlist.removeTrack(pushCandidate)).toBe(true);
     expect(playlist.removeTrack(pushCandidate)).toBe(false);
@@ -203,14 +214,15 @@ describe("Cspf", () => {
     expect(failure).toHaveBeenCalled();
     expect(failure.mock.calls[0][0]).toBe(true);
   });
+});
 
+describe("round trip", () => {
   test("loads DeepHouse2025.cspf when generated locally", async () => {
     // { skip: !process.env.CI },
 
     const fileBytes = await testFileLoader(
       "./cspf/__tests__/resources/DeepHouse2025.cspf"
     );
-    console.log("Bytes", fileBytes);
 
     const playlist = Cspf.loadFromBytes(fileBytes);
 
