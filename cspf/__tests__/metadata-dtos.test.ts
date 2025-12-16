@@ -216,8 +216,8 @@ describe("Cspf", () => {
   });
 });
 
-describe("round trip", () => {
-  test("loads DeepHouse2025.cspf when generated locally", async () => {
+describe("Round Trip", () => {
+  test("Can load DeepHouse2025.cspf when generated locally", async () => {
     // { skip: !process.env.CI },
 
     const fileBytes = await testFileLoader(
@@ -227,5 +227,11 @@ describe("round trip", () => {
     const playlist = Cspf.loadFromBytes(fileBytes);
 
     expect(playlist.getTrack().length).toBeGreaterThan(0);
+  });
+
+  test("DeepHouse2025.cspf matches DeepHouse2025.cspf when generated locally", async () => {
+    const fileBytes = await testFileLoader(
+      "./cspf/__tests__/resources/DeepHouse2025.cspf"
+    );
   });
 });
