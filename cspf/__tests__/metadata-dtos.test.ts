@@ -240,5 +240,153 @@ describe("Round Trip", () => {
       Buffer.from(xspfBytes).toString("utf8")
     );
     const loadedCspf = Cspf.loadFromBytes(cspfBytes);
+
+    const playlistNode = playlistDocument.playlist ?? {};
+    const metadataFields = [
+      "title",
+      "creator",
+      "annotation",
+      "info",
+      "location",
+      "identifier",
+      "image",
+      "date",
+      "license",
+      "attribution",
+      "link",
+      "meta",
+      "extension",
+    ] as const;
+
+    for (const field of metadataFields) {
+      const xspfValue = playlistNode[field];
+      if (xspfValue === undefined) continue;
+
+      let cspfValue: unknown;
+      switch (field) {
+        case "title":
+          cspfValue = loadedCspf.getTitle();
+          break;
+        case "creator":
+          cspfValue = loadedCspf.getCreator();
+          break;
+        case "annotation":
+          cspfValue = loadedCspf.getAnnotation();
+          break;
+        case "info":
+          cspfValue = loadedCspf.getInfo();
+          break;
+        case "location":
+          cspfValue = loadedCspf.getLocation();
+          break;
+        case "identifier":
+          cspfValue = loadedCspf.getIdentifier();
+          break;
+        case "image":
+          cspfValue = loadedCspf.getImage();
+          break;
+        case "date":
+          cspfValue = loadedCspf.getDate();
+          break;
+        case "license":
+          cspfValue = loadedCspf.getLicense();
+          break;
+        case "attribution":
+          cspfValue = loadedCspf.getAttribution();
+          break;
+        case "link":
+          cspfValue = loadedCspf.getLink();
+          break;
+        case "meta":
+          cspfValue = loadedCspf.getMeta();
+          break;
+        case "extension":
+          cspfValue = loadedCspf.getExtension();
+          break;
+      }
+
+      expect(cspfValue).toEqual(xspfValue);
+    }
+
+    const trackEntries = playlistNode.trackList?.track;
+    const xspfTracks = Array.isArray(trackEntries)
+      ? trackEntries
+      : trackEntries
+      ? [trackEntries]
+      : [];
+
+    const cspfTracks = loadedCspf.getTrack();
+    expect(cspfTracks).toHaveLength(xspfTracks.length);
+
+    const trackFields = [
+      "location",
+      "identifier",
+      "title",
+      "creator",
+      "annotation",
+      "info",
+      "image",
+      "album",
+      "trackNum",
+      "duration",
+      "link",
+      "meta",
+      "extension",
+    ] as const;
+
+    for (let index = 0; index < xspfTracks.length; index += 1) {
+      const xspfTrack = xspfTracks[index] as TrackShape;
+      const cspfTrack = cspfTracks[index];
+
+      for (const field of trackFields) {
+        const xspfValue = xspfTrack[field];
+        if (xspfValue === undefined) continue;
+
+        let cspfValue: unknown;
+        switch (field) {
+          case "location":
+            cspfValue = cspfTrack.getLocation();
+            break;
+          case "identifier":
+            cspfValue = cspfTrack.getIdentifier();
+            break;
+          case "title":
+            cspfValue = cspfTrack.getTitle();
+            break;
+          case "creator":
+            cspfValue = cspfTrack.getCreator();
+            break;
+          case "annotation":
+            cspfValue = cspfTrack.getAnnotation();
+            break;
+          case "info":
+            cspfValue = cspfTrack.getInfo();
+            break;
+          case "image":
+            cspfValue = cspfTrack.getImage();
+            break;
+          case "album":
+            cspfValue = cspfTrack.getAlbum();
+            break;
+          case "trackNum":
+            cspfValue = cspfTrack.getTrackNum();
+            break;
+          case "duration":
+            cspfValue = cspfTrack.getDuration();
+            break;
+          case "link":
+            cspfValue = cspfTrack.getLink();
+            break;
+          case "meta":
+            cspfValue = cspfTrack.getMeta();
+            break;
+          case "extension":
+            cspfValue = cspfTrack.getExtension();
+            break;
+        }
+
+        expect(cspfValue).not.toEqual(xspfValue);
+      }
+    }
   });
 });
