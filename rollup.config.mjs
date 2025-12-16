@@ -4,7 +4,7 @@ import typescript from "@rollup/plugin-typescript";
 import { dts } from "rollup-plugin-dts";
 
 const input = "cspf/index.ts";
-const externalDependencies = ["@ipld/dag-cbor", "multiformats", "zod", "tslib"];
+const externalDependencies = ["@ipld/dag-cbor", "multiformats", "zod", "tslog"];
 
 const createTsPlugin = (compilerOptions = {}) =>
   typescript({
