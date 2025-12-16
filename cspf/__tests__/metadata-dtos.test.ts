@@ -2,6 +2,7 @@ import { readFile } from "node:fs";
 
 import { encode } from "@ipld/dag-cbor";
 import { describe, expect, test, vi } from "vitest";
+import { XMLParser } from "fast-xml-parser";
 
 import { Cspf, Track } from "../metadata-dtos";
 import { type PlaylistRecord, type TrackShape } from "../types-with-validators";
@@ -230,8 +231,14 @@ describe("Round Trip", () => {
   });
 
   test("DeepHouse2025.cspf matches DeepHouse2025.cspf when generated locally", async () => {
-    const fileBytes = await testFileLoader(
-      "./cspf/__tests__/resources/DeepHouse2025.cspf"
+    const [cspfBytes, xspfBytes] = await Promise.all([
+      testFileLoader("./cspf/__tests__/resources/DeepHouse2025.cspf"),
+      testFileLoader("./cspf/__tests__/resources/DeepHouse2025.xspf"),
+    ]);
+
+    const playlistDocument = new XMLParser().parse(
+      Buffer.from(xspfBytes).toString("utf8")
     );
+    const loadedCspf = Cspf.loadFromBytes(cspfBytes);
   });
 });
