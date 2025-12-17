@@ -10,6 +10,8 @@ env:
   PNPM_VERSION: 10.24.0
   NODE_VERSION: 24.11.1
   REGISTRY_URL: https://registry.npmjs.org
+  YQ_VERSION: v4.44.3
+  CBOR_VERSION: v0.5.0
 
 permissions:
   contents: read
@@ -36,6 +38,22 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Install cbor
+        uses: ./.github/actions/cbor-setup
+        with:
+          version: ${{ env.CBOR_VERSION }}
+
+      - name: Install yq
+        uses: jaxxstorm/action-install-gh-release@v2.1.0
+        with:
+          repo: mikefarah/yq
+          tag: ${{ env.YQ_VERSION }}
+          cache: enable
+
+      - name: Setup Mocks
+        run: |
+          ./scripts/xspf-to-cbor.sh ./cspf/__tests__/resources/DeepHouse2025.xspf
 
       - name: test
         run: pnpm test
