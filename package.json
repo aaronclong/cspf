@@ -1,6 +1,6 @@
 {
   "name": "cspf",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "CBOR XSPF JavaScript module. This is an unofficial fork of XSPF that implements CBOR & DAR-CBOR compliant version",
   "keywords": [
     "xspf",
