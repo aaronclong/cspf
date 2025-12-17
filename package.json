@@ -1,6 +1,6 @@
 {
   "name": "cspf",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "CBOR XSPF JavaScript module. This is an unofficial fork of XSPF that implements CBOR & DAR-CBOR compliant version",
   "keywords": [
     "xspf",
@@ -16,15 +16,22 @@
   "engines": {
     "node": ">=24.11.1"
   },
+  "license": "Apache-2.0",
+  "files": [
+    "dist/",
+    "README.md",
+    "LICENSE"
+  ],
   "dependencies": {
     "@ipld/dag-cbor": "^9.2.5",
     "multiformats": "^13.4.1",
+    "tslog": "^4.10.2",
     "zod": "^4.1.13"
   },
-  "main": "dist/cspf.cjs",
-  "module": "dist/cspf.mjs",
-  "types": "dist/types/index.d.ts",
-  "browser": "dist/cspf.mjs",
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "browser": "dist/index.mjs",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -53,6 +60,8 @@
     "@rollup/plugin-commonjs": "^29.0.0",
     "@rollup/plugin-node-resolve": "^16.0.3",
     "@rollup/plugin-typescript": "^12.3.0",
+    "@types/node": "^25.0.2",
+    "fast-xml-parser": "^5.3.3",
     "rimraf": "^6.1.2",
     "rollup": "^4.53.3",
     "rollup-plugin-dts": "^6.3.0",

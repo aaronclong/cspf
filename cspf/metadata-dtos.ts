@@ -1,4 +1,6 @@
 import { encode, decode } from "@ipld/dag-cbor";
+
+import { logger } from "./logger";
 import {
   TrackShape,
   CspfShape,
@@ -24,6 +26,53 @@ type TrackInitializer = Partial<TrackShape>;
 type CspfInitializer = Partial<Omit<CspfShape, "track">> & {
   track?: Array<TrackShape | Track>;
 };
+
+const normalizeCspfPayload = (payload: unknown): unknown => {
+  if (!isPlainObject(payload)) {
+    return payload;
+  }
+
+  const playlistCandidate = payload.playlist;
+  if (!isPlainObject(playlistCandidate)) {
+    return payload;
+  }
+
+  const playlist = playlistCandidate;
+  const normalized: PlaylistRecord = {
+    title: playlist.title,
+    creator: playlist.creator,
+    annotation: playlist.annotation,
+    info: playlist.info,
+    location: playlist.location,
+    identifier: playlist.identifier,
+    image: playlist.image,
+    date: playlist.date,
+    license: playlist.license,
+    attribution: playlist.attribution,
+    link: playlist.link,
+    meta: playlist.meta,
+    extension: playlist.extension,
+  };
+
+  const trackList = playlist.trackList;
+  if (!isPlainObject(trackList)) {
+    normalized.track = [];
+    return normalized;
+  }
+  const trackEntries = (trackList.track ?? []) as unknown;
+  if (Array.isArray(trackEntries)) {
+    normalized.track = trackEntries;
+  } else if (trackEntries === undefined) {
+    normalized.track = [];
+  } else {
+    normalized.track = [trackEntries];
+  }
+
+  return normalized;
+};
+
+const parseCspfPayload = (payload: unknown) =>
+  cspfShapeSchema.safeParse(normalizeCspfPayload(payload));
 
 export class Track {
   location: string;
@@ -606,7 +655,11 @@ export class Cspf {
   }
 
   static isParsable(arg: unknown): arg is CspfShape {
-    return cspfShapeSchema.safeParse(arg).success;
+    const parseStatus = parseCspfPayload(arg);
+    if (parseStatus.error) {
+      logger.debug("Unparasble playlist", parseStatus.error);
+    }
+    return parseStatus.success;
   }
 
   toBytes(): Uint8Array {
@@ -615,12 +668,13 @@ export class Cspf {
 
   static loadFromBytes(bytes: ByteSource, callback?: OperationCallback): Cspf {
     try {
-      const parsed: unknown = decode(bytes);
-      if (!Cspf.isParsable(parsed)) {
+      const decoded: unknown = decode(bytes);
+      const parseStatus = parseCspfPayload(decoded);
+      if (!parseStatus.success) {
         throw new Error("Object stored in payload is not a CSPF playlist");
       }
 
-      const playlist = new Cspf(parsed);
+      const playlist = new Cspf(parseStatus.data);
       callback?.(false, "Playlist loaded successfully");
       return playlist;
     } catch (error) {

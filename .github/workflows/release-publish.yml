@@ -1,0 +1,96 @@
+name: release-publish
+
+on:
+  release:
+    types:
+      - released
+
+env:
+  CI: true
+  PNPM_VERSION: 10.24.0
+  NODE_VERSION: 24.11.1
+  REGISTRY_URL: https://registry.npmjs.org
+  YQ_VERSION: v4.44.3
+  CBOR_VERSION: v0.5.0
+
+permissions:
+  contents: read
+
+jobs:
+  build-test-pack:
+    name: Build, Test, & Pack
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: ${{ env.REGISTRY_URL }}
+          cache: pnpm
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install cbor
+        uses: ./.github/actions/cbor-setup
+        with:
+          version: ${{ env.CBOR_VERSION }}
+
+      - name: Install yq
+        uses: jaxxstorm/action-install-gh-release@v2.1.0
+        with:
+          repo: mikefarah/yq
+          tag: ${{ env.YQ_VERSION }}
+          cache: enable
+
+      - name: Setup Mocks
+        run: |
+          ./scripts/xspf-to-cbor.sh ./cspf/__tests__/resources/DeepHouse2025.xspf
+
+      - name: test
+        run: pnpm test
+
+      - name: build
+        run: pnpm build
+
+      - name: pack
+        run: pnpm pack
+
+      - name: Upload packed artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: packed-lib
+          path: "*.tgz"
+
+  publish:
+    name: Publish
+    runs-on: ubuntu-latest
+    needs: build-test-pack
+    environment: publish
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Download packed artifact
+        uses: actions/download-artifact@v7
+        with:
+          name: packed-lib
+          path: .
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: ${{ env.REGISTRY_URL }}
+
+      # npm alone can publish tgz
+      - name: Publish package
+        run: npm publish --access public cspf-*.*.*.tgz
